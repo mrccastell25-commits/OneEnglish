@@ -13,10 +13,22 @@ body {
 }
 
 /* Header */
-.header {
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px;
   border-bottom: 3px solid #6b2c91;
 }
+
+
+
 
 .header-content {
   display: flex;
