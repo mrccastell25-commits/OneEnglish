@@ -2,37 +2,35 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Teste de Proficiência | One English</title>
-
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/test.css">
+<script defer src="js/test-selector.js"></script>
 </head>
-
 <body>
 
-<header class="teste-header">
-    <h1>Teste de Proficiência</h1>
-    <p>Escolha seu nível inicial</p>
+<header>
+  <img src="assets/Logo_OnEnglish.MB.png" class="logo">
 </header>
 
-<section class="teste">
+<main>
+  <h1>Teste de Proficiência em Inglês</h1>
 
-    <div class="nivel">
-        <button onclick="startTest('beginner')">Beginner</button>
-        <button onclick="startTest('intermediate')">Intermediate</button>
-        <button onclick="startTest('advanced')">Advanced</button>
+  <div class="options">
+    <div class="card">
+      <h2>Teste Rápido</h2>
+      <p>Descubra seu nível em poucos minutos.</p>
+      <button onclick="startQuick()">Iniciar</button>
     </div>
 
-    <div id="quiz"></div>
+    <div class="card">
+      <h2>Teste Profissional</h2>
+      <p>Avaliação completa baseada no CEFR (A1–C1).</p>
+      <button onclick="startProfessional()">Iniciar</button>
+    </div>
+  </div>
 
-</section>
+  <div id="test-area"></div>
+</main>
 
-<footer>
-    © 2026 One English School
-</footer>
-
-<script src="quiz.js"></script>
 </body>
 </html>
