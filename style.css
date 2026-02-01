@@ -1,115 +1,59 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #f6f6f8;
+  color: #2b2b2b;
 }
 
-body{
-    font-family:'Merriweather', serif;
-    background:#f4f4f4;
-    color:#1c1c1c;
-    line-height:1.6;
+header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px;
+  border-bottom: 3px solid #6b2c91;
 }
 
-/* HEADER SITE */
-
-header{
-    background:#0b1c2d;
-    color:white;
-    text-align:center;
-    padding:60px 20px;
-    border-bottom:5px solid #caa54b;
+.logo {
+  height: 70px;
 }
 
-.logo{
-    width:140px;
-    margin-bottom:20px;
+nav a {
+  margin-left: 25px;
+  text-decoration: none;
+  color: #6b2c91;
+  font-weight: 500;
 }
 
-.subtitle{
-    color:#caa54b;
-    margin:10px 0 20px;
+.hero {
+  max-width: 900px;
+  margin: 80px auto;
+  text-align: center;
 }
 
-/* SEÇÕES */
-
-section{
-    max-width:1000px;
-    margin:60px auto;
-    padding:0 20px;
-    text-align:center;
+.hero h1 {
+  font-size: 38px;
+  color: #6b2c91;
 }
 
-h2{
-    color:#0b1c2d;
-    margin-bottom:20px;
+.hero p {
+  font-size: 18px;
+  margin: 20px 0;
 }
 
-/* CARDS */
-
-.cards{
-    display:flex;
-    justify-content:center;
-    gap:30px;
-    flex-wrap:wrap;
+.btn {
+  display: inline-block;
+  padding: 14px 30px;
+  background: #6b2c91;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
-.card{
-    background:white;
-    padding:30px;
-    width:280px;
-    border:1px solid #ddd;
-    border-top:4px solid #caa54b;
-}
-
-/* BOTÕES */
-
-.btn, button{
-    display:inline-block;
-    margin-top:20px;
-    padding:12px 28px;
-    background:#caa54b;
-    color:white;
-    text-decoration:none;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
-}
-
-button:hover, .btn:hover{
-    opacity:0.85;
-}
-
-/* TESTE */
-
-.teste-header{
-    background:#0b1c2d;
-    color:white;
-    text-align:center;
-    padding:40px 20px;
-}
-
-.teste{
-    background:#fff;
-    padding:50px 20px;
-}
-
-.nivel{
-    text-align:center;
-}
-
-#quiz{
-    max-width:700px;
-    margin:40px auto;
-    text-align:left;
-}
-
-/* FOOTER */
-
-footer{
-    background:#0b1c2d;
-    color:white;
-    text-align:center;
-    padding:25px;
-    margin-top:40px;
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #777;
 }
