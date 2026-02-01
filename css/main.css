@@ -1,12 +1,3 @@
-body::before {
-  content: "CSS CARREGADO COM SUCESSO";
-  display: block;
-  background: red;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-}
 
 
 body {
