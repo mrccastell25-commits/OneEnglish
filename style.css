@@ -11,7 +11,7 @@ body{
     line-height:1.6;
 }
 
-/* HEADER */
+/* HEADER SITE */
 
 header{
     background:#0b1c2d;
@@ -28,8 +28,7 @@ header{
 
 .subtitle{
     color:#caa54b;
-    margin-top:10px;
-    font-size:18px;
+    margin:10px 0 20px;
 }
 
 /* SEÇÕES */
@@ -53,7 +52,6 @@ h2{
     justify-content:center;
     gap:30px;
     flex-wrap:wrap;
-    margin-top:30px;
 }
 
 .card{
@@ -64,21 +62,9 @@ h2{
     border-top:4px solid #caa54b;
 }
 
-.card h3{
-    color:#0b1c2d;
-    margin-bottom:10px;
-}
+/* BOTÕES */
 
-/* CONTATO */
-
-.contato{
-    background:#e9ecef;
-    padding:50px 20px;
-}
-
-/* BOTÃO */
-
-.btn{
+.btn, button{
     display:inline-block;
     margin-top:20px;
     padding:12px 28px;
@@ -86,10 +72,36 @@ h2{
     color:white;
     text-decoration:none;
     font-weight:700;
+    border:none;
+    cursor:pointer;
 }
 
-.btn:hover{
+button:hover, .btn:hover{
     opacity:0.85;
+}
+
+/* TESTE */
+
+.teste-header{
+    background:#0b1c2d;
+    color:white;
+    text-align:center;
+    padding:40px 20px;
+}
+
+.teste{
+    background:#fff;
+    padding:50px 20px;
+}
+
+.nivel{
+    text-align:center;
+}
+
+#quiz{
+    max-width:700px;
+    margin:40px auto;
+    text-align:left;
 }
 
 /* FOOTER */
