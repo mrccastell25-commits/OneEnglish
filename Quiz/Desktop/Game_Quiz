@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☘️ St. Patrick's Trail</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --green-dark: #1a4d2e;
+    --green-mid: #2d7a4f;
+    --green-light: #4caf73;
+    --green-bright: #6fcf5a;
+    --gold: #f0b429;
+    --gold-light: #ffd166;
+    --cream: #fdf6e3;
+    --brown: #7b3f00;
+    --quiz-bg: #0d3320;
+    --correct: #27ae60;
+    --wrong: #c0392b;
+    --white: #ffffff;
+    --shadow: rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--green-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, #2d7a4f44 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, #f0b42922 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234caf73' fill-opacity='0.07'%3E%3Cpath d='M30 0c2 4 4 8 2 12-2 4-6 4-8 8s2 8 0 12c-2 4-6 4-8 8s2 8 0 12h4c2-4 6-4 8-8s-2-8 0-12 6-4 8-8-2-8 0-12 6-4 8-8h-4c-2 4-6 4-8 8s2 8 0 12c-2 4-6 4-8 8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .title-block { text-align: center; }
+  .title-block h1 {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--gold);
+    font-size: clamp(22px, 3vw, 36px);
+    text-shadow: 0 2px 12px #0008, 0 0 30px #f0b42966;
+    line-height: 1.2;
+  }
+  .title-block .subtitle {
+    color: var(--green-bright);
+    font-size: 13px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+  .shamrock-hero { font-size: 56px; display: block; margin-bottom: 4px; filter: drop-shadow(0 4px 12px #0006); }
+
+  .setup-card {
+    background: linear-gradient(145deg, #1f5c38, #163d28);
+    border: 2px solid #4caf7344;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+  .setup-card h2 { color: var(--gold-light); font-size: 15px; margin-bottom: 12px; text-align: center; letter-spacing: 0.5px; }
+
+  .players-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .player-toggle {
+    display: flex; align-items: center; gap: 8px;
+    background: #0d3320; border: 2px solid #2d7a4f;
+    border-radius: 12px; padding: 10px 12px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .player-toggle.active { border-color: var(--gold); background: #1a4d2e; }
+  .player-toggle .dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    border: 2px solid #2d7a4f;
+  }
+  .player-toggle.active .dot { border-color: var(--gold); }
+  .player-name-input {
+    background: transparent; border: none; outline: none;
+    color: var(--white); font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700; width: 100%;
+  }
+
+  .btn-start {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--gold), #e09b00);
+    color: var(--green-dark); font-family: 'Cinzel Decorative', cursive;
+    font-size: 16px; font-weight: 700; border: none; border-radius: 16px;
+    cursor: pointer; box-shadow: 0 4px 20px #f0b42966;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-start:active { transform: scale(0.97); box-shadow: 0 2px 10px #f0b42944; }
+
+  /* ── GAME SCREEN ── */
+  #game-screen {
+    display: none;
+    width: 100%;
+    max-width: 1100px;
+    padding: 16px 20px 24px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .game-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .game-columns {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .col-board {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .col-side {
+    width: 260px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Players bar */
+  .players-bar {
+    display: flex; flex-direction: column; gap: 8px; width: 100%;
+    padding: 2px;
+  }
+  .player-chip {
+    width: 100%; background: #1f5c38;
+    border: 2px solid #2d7a4f; border-radius: 12px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.3s;
+    text-align: left;
+  }
+  .player-chip.active {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #1a4d2e, #2d7a4f);
+    box-shadow: 0 0 12px #f0b42966;
+  }
+  .player-chip .chip-icon { font-size: 22px; flex-shrink: 0; }
+  .player-chip .chip-info { flex: 1; min-width: 0; }
+  .player-chip .chip-name { color: var(--white); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .player-chip .chip-pos { color: var(--gold-light); font-size: 11px; display: block; }
+  .player-chip.active .chip-name { color: var(--gold-light); }
+
+  /* Board */
+  .board-wrap {
+    width: 100%; position: relative;
+    background: linear-gradient(145deg, #163d28, #0d2e1a);
+    border: 3px solid #4caf7355;
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 8px 32px var(--shadow), inset 0 1px 0 #4caf7322;
+  }
+
+  .board-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; cursor: default;
+    border: 2px solid #1a3a6a;
+    transition: transform 0.15s;
+    overflow: hidden;
+  }
+  .cell-num {
+    color: rgba(255,255,255,0.92);
+    font-size: clamp(10px, 1.2vw, 14px); font-weight: 800; line-height: 1;
+    z-index: 1; position: relative;
+    text-shadow: 0 1px 4px #0009;
+  }
+  .cell-label {
+    font-size: clamp(6px, 0.65vw, 8px); font-weight: 700; letter-spacing: 0.3px;
+    color: rgba(255,255,255,0.80); text-transform: uppercase;
+    line-height: 1; position: relative; z-index: 1; margin-top: 2px;
+  }
+
+  .cell.normal { background: linear-gradient(145deg, #1e4fa8, #2860c8); border-color: #3a72d8; }
+  .cell.quiz   { background: linear-gradient(145deg, #6a1fb5, #8a35d5); border-color: #a050e8; }
+  .cell.boost  { background: linear-gradient(145deg, #b85e00, #e07a00); border-color: #f5a030; }
+  .cell.back2  { background: linear-gradient(145deg, #8b0000, #c0392b); border-color: #e74c3c; }
+  .cell.fwd2   { background: linear-gradient(145deg, #006060, #00a090); border-color: #00c8b0; }
+
+  /* Diamond cells for start/finish */
+  .cell.start, .cell.finish {
+    background: transparent !important;
+    border: none !important;
+    overflow: visible;
+    box-shadow: none !important;
+  }
+  .cell.start .cell-num,
+  .cell.finish .cell-num { display: none; }
+  .cell.start .cell-label,
+  .cell.finish .cell-label { display: none; }
+
+  .diamond-wrap {
+    position: absolute; inset: -4px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+  .diamond-shape {
+    width: 80%; height: 80%;
+    transform: rotate(45deg);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px 4px currentColor, 0 3px 10px #0008;
+  }
+  .cell.start .diamond-shape {
+    background: linear-gradient(135deg, #0fa04a, #1ed870);
+    border: 3px solid #6effa0;
+    color: #6effa0;
+  }
+  .cell.finish .diamond-shape {
+    background: linear-gradient(135deg, #b00020, #e8003a);
+    border: 3px solid #ff6080;
+    color: #ff6080;
+  }
+  .diamond-inner {
+    transform: rotate(-45deg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1px;
+  }
+  .diamond-flag { font-size: clamp(14px, 1.6vw, 22px); line-height: 1; }
+  .diamond-txt {
+    font-size: clamp(6px, 0.65vw, 9px); font-weight: 900; letter-spacing: 0.5px;
+    text-transform: uppercase; color: #fff;
+    text-shadow: 0 1px 3px #0008;
+  }
+
+  .cell.has-player { border-color: var(--gold) !important; box-shadow: 0 0 8px #f0b42966; }
+  .cell.has-player .cell-icon,
+  .cell.has-player .cell-num { visibility: hidden; }
+
+  .player-tokens {
+    position: absolute; inset: 0; z-index: 3;
+    display: flex; flex-wrap: wrap;
+    gap: 2px; padding: 3px;
+    align-items: center; justify-content: center;
+  }
+  .token {
+    width: clamp(20px, 2.2vw, 30px); height: clamp(20px, 2.2vw, 30px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(13px, 1.4vw, 19px); border: 2px solid rgba(255,255,255,0.9);
+    box-shadow: 0 2px 6px #000a, 0 0 8px #f0b42966;
+    background: rgba(0,0,0,0.5);
+  }
+
+  /* Action area */
+  .action-area {
+    width: 100%;
+    background: linear-gradient(145deg, #1f5c38, #163d28);
+    border: 2px solid #4caf7344;
+    border-radius: 18px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  .turn-label {
+    text-align: center; color: var(--gold-light);
+    font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .turn-label span { color: var(--white); }
+
+  .dice-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+
+  .dice-btn {
+    width: 88px; height: 88px;
+    background: linear-gradient(145deg, var(--cream), #e8dcc8);
+    border: 3px solid var(--gold); border-radius: 18px;
+    font-size: 48px; cursor: pointer;
+    box-shadow: 0 4px 16px #0006, inset 0 1px 0 #fff8;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.12s, box-shadow 0.12s;
+    user-select: none;
+  }
+  .dice-btn:active { transform: scale(0.92); box-shadow: 0 2px 8px #0004; }
+  .dice-btn.rolling { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100%{transform:rotate(0deg)}
+    20%{transform:rotate(-15deg) scale(1.1)}
+    40%{transform:rotate(15deg) scale(1.1)}
+    60%{transform:rotate(-10deg)}
+    80%{transform:rotate(10deg)}
+  }
+
+  .dice-result { text-align: center; }
+  .dice-result .num { font-family: 'Cinzel Decorative', cursive; font-size: 44px; color: var(--gold); text-shadow: 0 0 20px #f0b429aa; }
+  .dice-result .label { color: #aaa; font-size: 11px; }
+
+  .status-msg {
+    text-align: center; color: var(--green-bright);
+    font-size: 12px; font-weight: 700; min-height: 16px;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-next {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+    color: var(--white); font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 800; border: none; border-radius: 14px;
+    cursor: pointer; box-shadow: 0 3px 12px #0004;
+    transition: transform 0.12s; display: none;
+  }
+  .btn-next:active { transform: scale(0.97); }
+
+  /* Legend */
+  .legend {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    width: 100%;
+  }
+  .leg-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #aaa; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  .game-header-deco {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--gold); font-size: 18px;
+    padding: 4px 0 2px;
+  }
+  .game-title-small {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 13px; color: var(--gold);
+    text-shadow: 0 0 12px #f0b42966;
+    letter-spacing: 0.5px;
+  }
+
+  .side-section-title {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--gold); font-size: 11px; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 2px;
+    text-align: center;
+    text-shadow: 0 0 10px #f0b42966;
+  }
+
+  .players-panel {
+    background: linear-gradient(145deg, #1f5c38, #163d28);
+    border: 2px solid #4caf7344;
+    border-radius: 18px;
+    padding: 14px 14px;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  /* ── QUIZ OVERLAY ── */
+  #quiz-overlay {
+    display: none; position: fixed; inset: 0;
+    background: #000b; backdrop-filter: blur(4px);
+    z-index: 100; align-items: flex-end; justify-content: center;
+    padding: 0;
+  }
+  #quiz-overlay.show { display: flex; }
+
+  .quiz-sheet {
+    width: 100%; max-width: 440px;
+    background: linear-gradient(170deg, #0a2416, #0d3320);
+    border-top: 3px solid var(--gold);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 18px 32px;
+    animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    max-height: 85vh; overflow-y: auto;
+  }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+  .quiz-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .quiz-header .badge {
+    background: var(--gold); color: var(--green-dark);
+    font-size: 11px; font-weight: 800; padding: 3px 8px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .quiz-header .player-tag { color: var(--green-bright); font-size: 12px; font-weight: 700; flex: 1; }
+
+  .speak-btn {
+    background: linear-gradient(135deg, #1a3d5c, #2255aa);
+    border: 2px solid #4488dd;
+    border-radius: 50%; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 2px 8px #0006;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .speak-btn:hover { transform: scale(1.1); box-shadow: 0 0 12px #4488dd88; }
+  .speak-btn:active { transform: scale(0.93); }
+  .speak-btn.speaking {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #3a2000, #7a4800);
+    animation: speakPulse 0.7s ease-in-out infinite alternate;
+  }
+  @keyframes speakPulse {
+    from { box-shadow: 0 0 6px #f0b42966; }
+    to   { box-shadow: 0 0 18px #f0b429cc; }
+  }
+
+  .quiz-q-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .quiz-q {
+    flex: 1;
+    color: var(--white); font-size: 15px; font-weight: 700;
+    line-height: 1.5; margin-bottom: 0;
+  }
+
+
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    background: #1a3d28; border: 2px solid #2d7a4f;
+    border-radius: 12px; padding: 12px 14px;
+    color: var(--white); font-size: 14px; font-weight: 600;
+    cursor: pointer; text-align: left; width: 100%;
+    transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+  }
+  .quiz-opt:active { transform: scale(0.98); }
+  .quiz-opt .opt-letter {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #2d7a4f; color: var(--white);
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .quiz-opt.correct { background: #1a4d1a; border-color: var(--correct); }
+  .quiz-opt.correct .opt-letter { background: var(--correct); }
+  .quiz-opt.wrong { background: #4d1a1a; border-color: var(--wrong); }
+  .quiz-opt.wrong .opt-letter { background: var(--wrong); }
+  .quiz-opt.disabled { cursor: default; opacity: 0.7; }
+
+  .quiz-feedback {
+    margin-top: 14px; padding: 12px 14px;
+    border-radius: 12px; text-align: center;
+    font-size: 14px; font-weight: 700; display: none;
+  }
+  .quiz-feedback.correct { background: #1a4d1a; color: #6fcf5a; border: 2px solid #27ae60; }
+  .quiz-feedback.wrong { background: #4d1a1a; color: #ff7070; border: 2px solid var(--wrong); }
+
+  .btn-dismiss {
+    margin-top: 14px; width: 100%; padding: 13px;
+    background: linear-gradient(135deg, var(--gold), #c98a00);
+    color: var(--green-dark); font-weight: 800; font-size: 14px;
+    border: none; border-radius: 14px; cursor: pointer;
+    display: none; transition: transform 0.12s;
+  }
+  .btn-dismiss:active { transform: scale(0.97); }
+
+  /* ── WIN SCREEN ── */
+  #win-screen {
+    display: none; position: fixed; inset: 0;
+    background: #000c; backdrop-filter: blur(6px);
+    z-index: 200; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px; padding: 24px;
+  }
+  #win-screen.show { display: flex; }
+  .win-card {
+    background: linear-gradient(145deg, #1f5c38, #0d3320);
+    border: 3px solid var(--gold); border-radius: 24px;
+    padding: 32px 24px; text-align: center;
+    box-shadow: 0 0 60px #f0b42966;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    width: 100%; max-width: 320px;
+  }
+  @keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+  .win-emoji { font-size: 64px; display: block; margin-bottom: 10px; }
+  .win-title { font-family: 'Cinzel Decorative', cursive; color: var(--gold); font-size: 22px; margin-bottom: 6px; }
+  .win-name { color: var(--white); font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+  .btn-restart {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--gold), #c98a00);
+    color: var(--green-dark); font-weight: 800; font-size: 15px;
+    border: none; border-radius: 14px; cursor: pointer;
+  }
+  /* ── RESPONSIVE: mobile fallback ── */
+  @media (max-width: 700px) {
+    #game-screen { padding: 8px 8px 20px; }
+    .game-columns { flex-direction: column; }
+    .col-side { width: 100%; }
+    .players-bar { flex-direction: row; flex-wrap: wrap; }
+    .player-chip { flex: 1; min-width: 120px; }
+    .game-top-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="title-block">
+    <span class="shamrock-hero">☘️</span>
+    <h1>St. Patrick's Trail</h1>
+    <div class="subtitle">THE LUCKY BOARD GAME</div>
+  </div>
+
+  <div class="setup-card">
+    <h2>🍀 SELECT PLAYERS</h2>
+    <div class="players-grid" id="players-grid"></div>
+  </div>
+
+  <button class="btn-start" onclick="startGame()">🎲 START ADVENTURE</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <!-- Top bar: title + legend -->
+  <div class="game-top-bar">
+    <div class="game-header-deco">
+      <span>☘️</span>
+      <span class="game-title-small">St. Patrick's Trail</span>
+      <span>☘️</span>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#8a35d5"></div> Quiz</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#c0392b"></div> back 2</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#00a090"></div> forward 2</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#1ed870;border-radius:3px;transform:rotate(45deg)"></div> Start</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#e8003a;border-radius:3px;transform:rotate(45deg)"></div> Finish</div>
+    </div>
+  </div>
+
+  <!-- Two columns -->
+  <div class="game-columns">
+
+    <!-- Left: board -->
+    <div class="col-board">
+      <div class="board-wrap">
+        <div class="board-grid" id="board-grid"></div>
+      </div>
+    </div>
+
+    <!-- Right: players + controls -->
+    <div class="col-side">
+
+      <div class="players-panel">
+        <div class="side-section-title">🍀 Players</div>
+        <div class="players-bar" id="players-bar"></div>
+      </div>
+
+      <div class="action-area">
+        <div class="turn-label" id="turn-label">Turn: <span>—</span></div>
+        <div class="dice-row">
+          <div class="dice-result">
+            <div class="num" id="dice-num">—</div>
+            <div class="label">rolled</div>
+          </div>
+          <div class="dice-btn" id="dice-btn" onclick="rollDice()">🎲</div>
+        </div>
+        <div class="status-msg" id="status-msg">Click the dice to roll!</div>
+        <button class="btn-next" id="btn-next" onclick="nextTurn()">Next Player ➜</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ OVERLAY -->
+<div id="quiz-overlay">
+  <div class="quiz-sheet" id="quiz-sheet">
+    <div class="quiz-header">
+      <div class="badge">☘️ QUIZ TIME</div>
+      <div class="player-tag" id="quiz-player-tag"></div>
+      <button class="speak-btn" id="speak-btn" onclick="speakQuestion()" title="Read question aloud">🔊</button>
+    </div>
+    <div class="quiz-q-row">
+      <div class="quiz-q" id="quiz-q"></div>
+    </div>
+    <div class="quiz-options" id="quiz-options"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <button class="btn-dismiss" id="btn-dismiss" onclick="dismissQuiz()">Continue ➜</button>
+  </div>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="win-screen" id="win-screen">
+  <div class="win-card">
+    <span class="win-emoji">🏆</span>
+    <div class="win-title">Champion!</div>
+    <div class="win-name" id="win-name"></div>
+    <button class="btn-restart" onclick="restartGame()">🎲 Play Again</button>
+  </div>
+</div>
+
+<script>
+// ── NARRATOR (Web Speech API) ─────────────────────────────────────────
+const NARRATOR = (() => {
+  let femaleVoice = null;
+  let isSpeaking = false;
+
+  // Pre-load voices (async on some browsers)
+  function loadVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    // Priority: female English voices
+    const preferred = [
+      'Samantha', 'Victoria', 'Karen', 'Moira', 'Fiona',
+      'Tessa', 'Veena', 'Zira', 'Susan', 'Emma',
+      'Google US English', 'Microsoft Zira', 'Microsoft Emma'
+    ];
+    for (const name of preferred) {
+      const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+      if (v) { femaleVoice = v; return; }
+    }
+    // Fallback: any English female or just English
+    femaleVoice =
+      voices.find(v => v.lang.startsWith('en-') && /female|woman|girl/i.test(v.name)) ||
+      voices.find(v => v.lang === 'en-US') ||
+      voices.find(v => v.lang.startsWith('en')) ||
+      null;
+  }
+
+  if (typeof speechSynthesis !== 'undefined') {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function stop() {
+    if (typeof speechSynthesis !== 'undefined') {
+      window.speechSynthesis.cancel();
+    }
+    isSpeaking = false;
+    const btn = document.getElementById('speak-btn');
+    if (btn) btn.classList.remove('speaking');
+  }
+
+  function speak(text, onEnd) {
+    if (typeof speechSynthesis === 'undefined') return;
+    stop();
+    const utt = new SpeechSynthesisUtterance(text);
+    if (femaleVoice) utt.voice = femaleVoice;
+    utt.lang = 'en-US';
+    utt.rate = 0.92;
+    utt.pitch = 1.1;
+    utt.volume = 1.0;
+
+    isSpeaking = true;
+    const btn = document.getElementById('speak-btn');
+    if (btn) btn.classList.add('speaking');
+
+    utt.onend = () => {
+      isSpeaking = false;
+      if (btn) btn.classList.remove('speaking');
+      if (onEnd) onEnd();
+    };
+    utt.onerror = () => {
+      isSpeaking = false;
+      if (btn) btn.classList.remove('speaking');
+    };
+    window.speechSynthesis.speak(utt);
+  }
+
+  return { speak, stop, isAvailable: () => typeof speechSynthesis !== 'undefined' };
+})();
+
+// ── SOUND ENGINE (Web Audio API) ──────────────────────────────────────
+const SFX = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function tone(freq, type, vol, attack, sustain, release, delay=0) {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.connect(gain); gain.connect(c.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+    gain.gain.setValueAtTime(0, c.currentTime + delay);
+    gain.gain.linearRampToValueAtTime(vol, c.currentTime + delay + attack);
+    gain.gain.setValueAtTime(vol, c.currentTime + delay + attack + sustain);
+    gain.gain.linearRampToValueAtTime(0, c.currentTime + delay + attack + sustain + release);
+    osc.start(c.currentTime + delay);
+    osc.stop(c.currentTime + delay + attack + sustain + release + 0.01);
+  }
+
+  function noise(vol, duration, delay=0) {
+    const c = getCtx();
+    const buf = c.createBuffer(1, c.sampleRate * duration, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const gain = c.createGain();
+    const filter = c.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 800; filter.Q.value = 0.5;
+    src.connect(filter); filter.connect(gain); gain.connect(c.destination);
+    gain.gain.setValueAtTime(vol, c.currentTime + delay);
+    gain.gain.linearRampToValueAtTime(0, c.currentTime + delay + duration);
+    src.start(c.currentTime + delay);
+    src.stop(c.currentTime + delay + duration + 0.01);
+  }
+
+  return {
+    // Dice rolling: rapid random clicks
+    diceRoll() {
+      for (let i = 0; i < 6; i++) {
+        noise(0.15, 0.04, i * 0.07);
+        tone(80 + Math.random()*40, 'square', 0.1, 0.005, 0.02, 0.03, i*0.07);
+      }
+    },
+    // Dice result: two-tone thud
+    diceResult(val) {
+      const base = 150 + val * 20;
+      tone(base, 'sine', 0.35, 0.01, 0.06, 0.12);
+      tone(base * 1.5, 'sine', 0.18, 0.01, 0.04, 0.1, 0.05);
+    },
+    // Step: small tick per house
+    step() {
+      tone(440, 'square', 0.08, 0.005, 0.01, 0.04);
+    },
+    // Quiz appears: mysterious ascending arp
+    quizOpen() {
+      [330, 392, 494, 587].forEach((f, i) => tone(f, 'triangle', 0.2, 0.01, 0.06, 0.1, i*0.09));
+    },
+    // Correct answer: cheerful fanfare
+    correct() {
+      [[523,0],[659,0.12],[784,0.24],[1047,0.38]].forEach(([f,d]) => tone(f,'triangle',0.25,0.01,0.1,0.12,d));
+      tone(523,'sine',0.15,0.01,0.3,0.2,0.5);
+    },
+    // Wrong answer: descending blip
+    wrong() {
+      tone(440,'sawtooth',0.2,0.01,0.05,0.08);
+      tone(330,'sawtooth',0.2,0.01,0.05,0.08,0.12);
+      tone(220,'sawtooth',0.2,0.01,0.08,0.12,0.24);
+    },
+    // Boost / bonus: upward sparkle
+    boost() {
+      [523,659,784,1047,1319].forEach((f,i) => tone(f,'sine',0.18,0.005,0.05,0.08,i*0.06));
+    },
+    // Back: descending gloom
+    back() {
+      [400,320,240,180].forEach((f,i) => tone(f,'sawtooth',0.18,0.005,0.06,0.1,i*0.08));
+    },
+    // Start Adventure: heroic ascending fanfare
+    startAdventure() {
+      [261,330,392,523,659,784].forEach((f,i) => tone(f,'triangle',0.22,0.01,0.08,0.12,i*0.07));
+      tone(1047,'sine',0.28,0.01,0.25,0.3,0.5);
+    },
+    // Next turn: soft blip
+    nextTurn() {
+      tone(392,'sine',0.2,0.01,0.04,0.1);
+      tone(523,'sine',0.15,0.01,0.04,0.1,0.1);
+    },
+    // Win: full victory fanfare
+    win() {
+      const melody = [[523,0],[659,0.15],[784,0.30],[1047,0.45],[784,0.65],[1047,0.80],[1319,1.0]];
+      melody.forEach(([f,d]) => tone(f,'triangle',0.28,0.02,0.12,0.15,d));
+      // harmony
+      const harm = [[330,0],[415,0.15],[494,0.30],[659,0.45]];
+      harm.forEach(([f,d]) => tone(f,'sine',0.12,0.02,0.12,0.15,d));
+    }
+  };
+})();
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const PLAYER_CONFIGS = [
+  { emoji: '🍀', color: '#27ae60', bg: '#1a4d1a' },
+  { emoji: '🌈', color: '#e74c3c', bg: '#4d1a1a' },
+  { emoji: '🪙', color: '#f0b429', bg: '#4d3800' },
+  { emoji: '🎩', color: '#9b59b6', bg: '#2d1a4d' }
+];
+
+const TOTAL_CELLS = 30;
+
+// Cell types: start, finish, quiz, back2, fwd2
+const CELL_TYPES = { 0:'start', 29:'finish' };
+const BACK2_CELLS = [8];
+const FWD2_CELLS  = [20];
+const BOOST_CELLS = [];
+function isQuizCell(idx) {
+  if (idx === 0 || idx === TOTAL_CELLS - 1) return false;
+  if (BACK2_CELLS.includes(idx) || FWD2_CELLS.includes(idx)) return false;
+  return true;
+}
+const QUIZ_CELLS = Array.from({length: TOTAL_CELLS}, (_, i) => i).filter(isQuizCell);
+
+const DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+const QUESTIONS = [
+  { q:"When is St. Patrick\u0027s Day celebrated?", opts:["May 17","March 7","March 17","April 17"], correct:2 },
+  { q:"Why is Ireland called the Emerald Isle?", opts:["Because there are many pirates","Because the island is very green","Because it has a lot of gold","Because of the blue rivers"], correct:1 },
+  { q:"How old was Patrick when he was captured by pirates?", opts:["Six years old","Sixty years old","Sixteen years old","Ten years old"], correct:2 },
+  { q:"What job did Patrick do for six years in Ireland?", opts:["He was a pirate","He was a shepherd","He was a shoemaker","He was a cook"], correct:1 },
+  { q:"Patrick used the shamrock to explain:", opts:["How to find gold","How to cook traditional food","The Holy Trinity","How to escape from the island"], correct:2 },
+  { q:"What is a leprechaun\u0027s job in Irish legend?", opts:["Making shoes","Dyeing rivers green","Cooking corned beef","Dancing in parades"], correct:0 },
+  { q:"Where does a leprechaun hide his gold?", opts:["In a green river","In a pot of gold","Inside a shamrock","Under a cabbage"], correct:1 },
+  { q:"What is a traditional meal for St. Patrick\u0027s Day?", opts:["Green eggs and ham","Corned beef and cabbage","Pizza and soda","Fish and chips"], correct:1 },
+  { q:"What might happen if you do not wear green?", opts:["You get a pot of gold","Someone may pinch you","You have to go to Ireland","You must make shoes"], correct:1 },
+  { q:"Which city is famous for dyeing its river green?", opts:["Dublin","New York","Chicago","London"], correct:2 },
+  { q:"What kind of creature is a leprechaun?", opts:["A giant","A pirate","A magical fairy","A talking sheep"], correct:2 },
+  { q:"If you catch a leprechaun, he must:", opts:["Give you his clothes","Make you shoes","Tell you where his gold is","Pinch your friends"], correct:2 },
+  { q:"How did Patrick get to Ireland the first time?", opts:["He moved for work","He went on vacation","He was captured by pirates","He was born there"], correct:2 },
+  { q:"What are the main elements of the celebration?", opts:["Sleeping and quiet music","Green clothes, parades, and dancing","Catching pirates on boats","Painting houses green"], correct:1 },
+  { q:"Ireland is very green, that is why its nickname is:", opts:["The Green Island","The Emerald Isle","The Golden Land","The Shamrock Isle"], correct:1 }
+];
+
+const CELL_ICONS = {
+  start: '🚩',
+  finish: '🏆',
+  quiz: '❓',
+  boost: '⭐',
+  back2: '⬇️',
+  fwd2: '⬆️',
+  normal: ['☘️','🍀','🌿','🌈','🪙','🎩','🐍','⛺','🏔️']
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let players = [];
+let currentPlayer = 0;
+let diceRolled = false;
+let quizAnswered = false;
+let quizCorrect = false;
+let usedQuestions = [];
+let gameStarted = false;
+
+// ── SETUP ──────────────────────────────────────────────────────────────
+function initSetup() {
+  const grid = document.getElementById('players-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const cfg = PLAYER_CONFIGS[i];
+    const div = document.createElement('div');
+    div.className = 'player-toggle' + (i < 2 ? ' active' : '');
+    div.dataset.idx = i;
+    div.innerHTML = `
+      <div class="dot" style="background:${cfg.bg};border-color:${cfg.color}">${cfg.emoji}</div>
+      <input class="player-name-input" type="text" value="Player ${i+1}" maxlength="10">
+    `;
+    div.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+      div.classList.toggle('active');
+    });
+    grid.appendChild(div);
+  }
+}
+
+function startGame() {
+  const toggles = document.querySelectorAll('.player-toggle');
+  players = [];
+  toggles.forEach((t, i) => {
+    if (t.classList.contains('active')) {
+      const name = t.querySelector('input').value.trim() || `Player ${i+1}`;
+      players.push({ name, pos: 0, cfg: PLAYER_CONFIGS[i], active: true });
+    }
+  });
+  if (players.length < 1) { alert('Select at least 1 player!'); return; }
+
+  SFX.startAdventure();
+  currentPlayer = 0;
+  diceRolled = false;
+  usedQuestions = [];
+  gameStarted = true;
+
+  document.getElementById('setup-screen').style.display = 'none';
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+
+  buildBoard();
+  buildPlayersBar();
+  renderBoard();
+  updateTurnUI();
+}
+
+// ── BOARD BUILD ──────────────────────────────────────────────────────────
+function getCellType(idx) {
+  if (idx === 0) return 'start';
+  if (idx === TOTAL_CELLS - 1) return 'finish';
+  if (BACK2_CELLS.includes(idx)) return 'back2';
+  if (FWD2_CELLS.includes(idx)) return 'fwd2';
+  return 'quiz';
+}
+
+function getCellIcon(idx) {
+  const t = getCellType(idx);
+  if (t === 'start') return '🚩';
+  if (t === 'finish') return '🏆';
+  if (t === 'quiz') return '❓';
+  if (t === 'boost') return '⭐';
+  if (t === 'back2') return '⬇️';
+  if (t === 'fwd2') return '⬆️';
+  const normalIcons = ['☘️','🍀','🌿','🌈','🪙','🎩','🐍','⛺','🏔️','🌸'];
+  return normalIcons[idx % normalIcons.length];
+}
+
+// Build snake-path: row 0 → right, row 1 → left, etc.
+function buildIndexMap() {
+  // maps grid position (row, col) to cell index
+  const map = {};
+  const cols = 6;
+  const rows = Math.ceil(TOTAL_CELLS / cols);
+  let idx = 0;
+  for (let r = rows - 1; r >= 0; r--) {
+    const leftToRight = (rows - 1 - r) % 2 === 0;
+    for (let c = 0; c < cols; c++) {
+      if (idx >= TOTAL_CELLS) break;
+      const col = leftToRight ? c : (cols - 1 - c);
+      map[`${r}-${col}`] = idx;
+      idx++;
+    }
+  }
+  return map;
+}
+
+let indexToGrid = {};
+
+function buildBoard() {
+  const cols = 6;
+  const rows = Math.ceil(TOTAL_CELLS / cols);
+  const grid = document.getElementById('board-grid');
+  grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  grid.innerHTML = '';
+
+  const posMap = buildIndexMap();
+  // invert
+  indexToGrid = {};
+  for (const [key, val] of Object.entries(posMap)) { indexToGrid[val] = key; }
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const key = `${r}-${c}`;
+      const idx = posMap[key];
+      if (idx === undefined) {
+        const blank = document.createElement('div');
+        blank.style.aspectRatio = '1';
+        grid.appendChild(blank);
+        continue;
+      }
+      const cell = document.createElement('div');
+      const type = getCellType(idx);
+      cell.className = `cell ${type}`;
+      cell.id = `cell-${idx}`;
+      const lbl = type === 'quiz' ? 'QUIZ' : type === 'back2' ? 'back 2' : type === 'fwd2' ? 'forward 2' : '';
+      let extraHtml = '';
+      if (type === 'start') {
+        extraHtml = `<div class="diamond-wrap"><div class="diamond-shape"><div class="diamond-inner"><span class="diamond-flag">🚩</span><span class="diamond-txt">START</span></div></div></div>`;
+      } else if (type === 'finish') {
+        extraHtml = `<div class="diamond-wrap"><div class="diamond-shape"><div class="diamond-inner"><span class="diamond-flag">🏁</span><span class="diamond-txt">FINISH</span></div></div></div>`;
+      }
+      cell.innerHTML = `
+        ${extraHtml}
+        <div class="cell-num">${idx}</div>
+        ${lbl ? `<div class="cell-label">${lbl}</div>` : ''}
+        <div class="player-tokens" id="tokens-${idx}"></div>
+      `;
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function buildPlayersBar() {
+  const bar = document.getElementById('players-bar');
+  bar.innerHTML = '';
+  players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip' + (i === 0 ? ' active' : '');
+    chip.id = `chip-${i}`;
+    chip.innerHTML = `
+      <div class="chip-icon">${p.cfg.emoji}</div>
+      <div class="chip-info">
+        <span class="chip-name">${p.name}</span>
+        <span class="chip-pos" id="chip-pos-${i}">Square: 0</span>
+      </div>
+    `;
+    bar.appendChild(chip);
+  });
+}
+
+// ── RENDER ──────────────────────────────────────────────────────────────
+function renderBoard() {
+  // Clear all tokens
+  document.querySelectorAll('.player-tokens').forEach(t => t.innerHTML = '');
+  document.querySelectorAll('.cell').forEach(c => c.classList.remove('has-player'));
+
+  players.forEach((p, i) => {
+    const tokenDiv = document.getElementById(`tokens-${p.pos}`);
+    if (!tokenDiv) return;
+    const tok = document.createElement('div');
+    tok.className = 'token';
+    tok.style.background = p.cfg.bg;
+    tok.style.borderColor = p.cfg.color;
+    tok.textContent = p.cfg.emoji;
+    tokenDiv.appendChild(tok);
+    document.getElementById(`cell-${p.pos}`)?.classList.add('has-player');
+  });
+
+  players.forEach((p, i) => {
+    const pos = document.getElementById(`chip-pos-${i}`);
+    if (pos) pos.textContent = `Pos: ${p.pos}`;
+  });
+}
+
+function updateTurnUI() {
+  const p = players[currentPlayer];
+  const label = document.getElementById('turn-label');
+  label.innerHTML = `Turn: <span>${p.cfg.emoji} ${p.name}</span>`;
+
+  // update chips
+  document.querySelectorAll('.player-chip').forEach((c, i) => {
+    c.classList.toggle('active', i === currentPlayer);
+  });
+
+  document.getElementById('status-msg').textContent = 'Tap the dice to roll!';
+  document.getElementById('dice-num').textContent = '—';
+  document.getElementById('dice-btn').style.display = 'flex';
+  document.getElementById('btn-next').style.display = 'none';
+  diceRolled = false;
+  setTimeout(() => NARRATOR.speak('Play!'), 300);
+}
+
+// ── DICE ──────────────────────────────────────────────────────────────
+function rollDice() {
+  if (diceRolled) return;
+  const btn = document.getElementById('dice-btn');
+  btn.classList.add('rolling');
+  btn.style.pointerEvents = 'none';
+
+  // animate faces
+  SFX.diceRoll();
+  let ticks = 0;
+  const interval = setInterval(() => {
+    const face = Math.floor(Math.random() * 6);
+    btn.textContent = DICE_FACES[face];
+    ticks++;
+    if (ticks > 8) {
+      clearInterval(interval);
+      const roll = Math.floor(Math.random() * 6) + 1;
+      btn.textContent = DICE_FACES[roll - 1];
+      btn.classList.remove('rolling');
+      btn.style.pointerEvents = 'auto';
+      SFX.diceResult(roll);
+      processRoll(roll);
+    }
+  }, 60);
+}
+
+function processRoll(roll) {
+  diceRolled = true;
+
+  // Keep dice visible for 1.5s so players can clearly see the rolled face
+  setTimeout(() => {
+    document.getElementById('dice-btn').style.display = 'none';
+    document.getElementById('dice-num').textContent = roll;
+  }, 1500);
+
+  const p = players[currentPlayer];
+  const oldPos = p.pos;
+  let newPos = Math.min(p.pos + roll, TOTAL_CELLS - 1);
+
+  // animate movement — wait for dice to be hidden first
+  setTimeout(() => animateMovement(oldPos, newPos, roll, () => {
+    p.pos = newPos;
+    renderBoard();
+
+    const type = getCellType(newPos);
+
+    if (newPos === TOTAL_CELLS - 1) {
+      SFX.win();
+      NARRATOR.speak(`Congratulations! You reached the finish! ${p.name} wins!`);
+      document.getElementById('win-name').textContent = `${p.cfg.emoji} ${p.name}`;
+      document.getElementById('win-screen').classList.add('show');
+      return;
+    }
+
+    if (type === 'quiz') {
+      document.getElementById('status-msg').textContent = '❓ Quiz time! Answer to keep playing.';
+      setTimeout(() => showQuiz(), 600);
+    } else if (type === 'back2') {
+      const moved = Math.max(0, newPos - 2);
+      p.pos = moved;
+      renderBoard();
+      SFX.back();
+      NARRATOR.speak('Go back two spaces!');
+      document.getElementById('status-msg').textContent = `⬇️ back 2! Moved to square ${moved}`;
+      showNextBtn();
+    } else if (type === 'fwd2') {
+      const moved = Math.min(TOTAL_CELLS - 1, newPos + 2);
+      p.pos = moved;
+      renderBoard();
+      SFX.boost();
+      if (moved === TOTAL_CELLS - 1) {
+        SFX.win();
+        NARRATOR.speak(`Congratulations! You reached the finish! ${p.name} wins!`);
+        document.getElementById('win-name').textContent = `${p.cfg.emoji} ${p.name}`;
+        document.getElementById('win-screen').classList.add('show');
+        return;
+      }
+      NARRATOR.speak('Move forward two spaces!');
+      document.getElementById('status-msg').textContent = `⬆️ forward 2! Moved to square ${moved}`;
+      showNextBtn();
+    } else {
+      document.getElementById('status-msg').textContent = `Moved to square ${newPos}`;
+      showNextBtn();
+    }
+  }), 1600);
+}
+
+let moveTimer = null;
+
+function animateMovement(from, to, roll, callback) {
+  let cur = from;
+  const step = () => {
+    if (cur === to) { callback(); return; }
+    // highlight current
+    document.getElementById(`cell-${cur}`)?.classList.remove('has-player');
+    cur++;
+    const cell = document.getElementById(`cell-${cur}`);
+    if (cell) {
+      cell.classList.add('has-player');
+      cell.style.transform = 'scale(1.15)';
+      SFX.step();
+      setTimeout(() => { cell.style.transform = ''; }, 180);
+    }
+    setTimeout(step, 130);
+  };
+  step();
+}
+
+function showNextBtn() {
+  const btn = document.getElementById('btn-next');
+  btn.style.display = 'block';
+}
+
+function nextTurn() {
+  SFX.nextTurn();
+  currentPlayer = (currentPlayer + 1) % players.length;
+  updateTurnUI();
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+let currentQuestion = null;
+
+function getRandomQuestion() {
+  if (usedQuestions.length >= QUESTIONS.length) usedQuestions = [];
+  const available = QUESTIONS.filter((_, i) => !usedQuestions.includes(i));
+  const pick = Math.floor(Math.random() * available.length);
+  const idx = QUESTIONS.indexOf(available[pick]);
+  usedQuestions.push(idx);
+  return QUESTIONS[idx];
+}
+
+function speakQuestion() {
+  if (!currentQuestion) return;
+  const text = currentQuestion.q + '. ' +
+    currentQuestion.opts.map((o, i) => ['A','B','C','D'][i] + '. ' + o).join('. ');
+  NARRATOR.speak(text);
+}
+
+function showQuiz() {
+  currentQuestion = getRandomQuestion();
+  const p = players[currentPlayer];
+
+  document.getElementById('quiz-player-tag').textContent = `${p.cfg.emoji} ${p.name}`;
+  document.getElementById('quiz-q').textContent = currentQuestion.q;
+
+  const optContainer = document.getElementById('quiz-options');
+  optContainer.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  currentQuestion.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => answerQuiz(i);
+    optContainer.appendChild(btn);
+  });
+
+  document.getElementById('quiz-feedback').style.display = 'none';
+  document.getElementById('quiz-feedback').className = 'quiz-feedback';
+  document.getElementById('btn-dismiss').style.display = 'none';
+  SFX.quizOpen();
+  document.getElementById('quiz-overlay').classList.add('show');
+  // Auto-narrate after a short pause so quiz SFX plays first
+  setTimeout(() => speakQuestion(), 700);
+}
+
+function answerQuiz(idx) {
+  NARRATOR.stop();
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+
+  const correct = currentQuestion.correct;
+  opts[correct].classList.add('correct');
+
+  const feedback = document.getElementById('quiz-feedback');
+  const dismiss = document.getElementById('btn-dismiss');
+
+  if (idx === correct) {
+    SFX.correct();
+    NARRATOR.speak('Congratulations!');
+    feedback.textContent = '🎉 Correct! Next player\'s turn.';
+    feedback.className = 'quiz-feedback correct';
+    quizCorrect = true;
+  } else {
+    SFX.wrong();
+    opts[idx].classList.add('wrong');
+    NARRATOR.speak('Sorry!');
+    feedback.textContent = `❌ Wrong! Passing to next player.`;
+    feedback.className = 'quiz-feedback wrong';
+    quizCorrect = false;
+  }
+
+  feedback.style.display = 'block';
+  dismiss.style.display = 'block';
+}
+
+function dismissQuiz() {
+  NARRATOR.stop();
+  document.getElementById('quiz-overlay').classList.remove('show');
+  if (quizCorrect) {
+    document.getElementById('status-msg').textContent = '✅ Correct! Next player\'s turn.';
+  } else {
+    document.getElementById('status-msg').textContent = '❌ Wrong answer. Next player!';
+  }
+  showNextBtn();
+}
+
+// ── WIN / RESTART ──────────────────────────────────────────────────────
+function restartGame() {
+  document.getElementById('win-screen').classList.remove('show');
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+  gameStarted = false;
+  initSetup();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+initSetup();
+</script>
+</body>
+</html>
